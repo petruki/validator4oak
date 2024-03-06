@@ -1,0 +1,45 @@
+name: Master CI
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Deno v1.41.0
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.41.0
+
+      - name: Setup LCOV        
+        run: sudo apt install -y lcov
+
+      - name: Verify formatting
+        run: deno task fmt
+
+      - name: Run linter
+        run: deno lint
+
+      - name: Run tests and coverage
+        run: deno task cover
+
+      - name: Fix LCOV output for SonarCloud        
+        run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage/report.lcov
+
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
