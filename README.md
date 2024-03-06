@@ -8,7 +8,7 @@ Validator & Sanitizer middleware for Oak.
 <div align="center">
 
 [![Master CI](https://github.com/petruki/validator4oak/actions/workflows/master.yml/badge.svg)](https://github.com/petruki/validator4oak/actions/workflows/master.yml)
-[![deno.land/x/skimming](https://shield.deno.dev/x/validator4oak)](https://deno.land/x/validator4oak)
+[![deno.land/x/validator4oak](https://shield.deno.dev/x/validator4oak)](https://deno.land/x/validator4oak)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=petruki_validator4oak&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=petruki_validator4oak)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
