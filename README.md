@@ -18,7 +18,7 @@ Validator & Sanitizer middleware for Oak.
 
 # `validator4oak` - Deno Module for Oak
 
-This module provides a middleware for Oak to validate request using JSON Schema.
+This module provides a middleware for [Oak](https://github.com/oakserver/oak) to validate request using JSON Schema.
 
 - Validate request query, body, header parameters
 - Sanitize request query and body parameters
