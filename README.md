@@ -20,12 +20,11 @@ Validator & Sanitizer middleware for Oak.
 
 This module provides a middleware for Oak to validate request using JSON Schema.
 
-Main features:
 - Validate request query, body, header parameters
-- Sanitize request query, body, header parameters
-- Allow to define custom error handler
-- Allow to create custom validators and sanitizers
-- Stack multiple validators and sanitizers for the same parameter
+- Sanitize request query and body parameters
+- Define custom error handler
+- Create custom validators and sanitizers
+- Stack up multiple validators and sanitizers
 
 Import module with:
     
@@ -65,12 +64,28 @@ router.get('/api/v1/shorten',
 
 ### Validate body parameters
 
-Key body parameters can be accessed using complex keys, e.g. `order.number`.
+Key body parameters can be accessed using complex keys, e.g. `order.number`.<br>
+Since Oak v14, body request can only be consumed once, so you'll need to use state.request_body to access it within the route.
 
 ```typescript
 router.post('/checkout/v1/confirm',
   body([
     { key: 'order.number', validators: [isNumeric()] },
+  ]), (ctx: Context) => {
+    // ...
+  },
+);
+```
+
+### Validate header parameters
+
+```typescript
+const { header } = ValidatorMiddleware.createMiddleware();
+const { isNumber } = ValidatorFn.createValidator();
+
+router.post('/example/v1/shorten',
+  header([
+    { key: 'x-api-key', validators: [isNumber()] },
   ]), (ctx: Context) => {
     // ...
   },
