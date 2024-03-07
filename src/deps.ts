@@ -1,2 +1,2 @@
-export type { Next } from 'https://deno.land/x/oak@v14.1.1/mod.ts';
-export { Context } from 'https://deno.land/x/oak@v14.1.1/context.ts';
+export type { Next } from 'https://deno.land/x/oak@14.2.0/mod.ts';
+export { Context } from 'https://deno.land/x/oak@14.2.0/context.ts';

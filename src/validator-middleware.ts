@@ -1,5 +1,5 @@
 import { Context, Next } from './deps.ts';
-import type { ErrorHandler, ValidatorParams } from './validator-types.ts';
+import type { ErrorHandler, ValidatorHeaderParams, ValidatorParams } from './validator-types.ts';
 
 export class ValidatorMiddleware {
   static createMiddleware() {
@@ -9,6 +9,7 @@ export class ValidatorMiddleware {
     validator.errorHandler = validator.errorHandler.bind(validator);
     validator.query = validator.query.bind(validator);
     validator.body = validator.body.bind(validator);
+    validator.header = validator.header.bind(validator);
     return validator;
   }
 
@@ -104,7 +105,23 @@ export class ValidatorMiddleware {
     };
   }
 
-  trim(value: string) {
-    return value.trim();
+  /**
+   * Check the request header
+   *
+   * @param args validator parameters
+   * @returns middleware
+   */
+  header(args: ValidatorHeaderParams[]) {
+    return async (context: Context, next: Next) => {
+      for (const arg of args) {
+        const value = context.request.headers.get(arg.key) || '';
+
+        if (!this.runValidators(arg, value, context)) {
+          return;
+        }
+      }
+
+      return await next();
+    };
   }
 }
