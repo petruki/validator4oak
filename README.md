@@ -92,7 +92,7 @@ router.post('/example/v1/shorten',
 );
 ```
 
-### Santize parameters
+### Sanitize parameters
 
 ```typescript
 const { escape } = ValidatorSn.createSanitizer();
