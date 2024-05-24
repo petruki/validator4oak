@@ -1,8 +1,11 @@
-import { Context, Next } from './deps.ts';
+import type { Context, Next } from './deps.ts';
 import type { ErrorHandler, ValidatorHeaderParams, ValidatorParams } from './validator-types.ts';
 
+/**
+ * Middleware to validate the request parameters
+ */
 export class ValidatorMiddleware {
-  static createMiddleware() {
+  static createMiddleware(): ValidatorMiddleware {
     const validator = new ValidatorMiddleware();
     validator.runValidators = validator.runValidators.bind(validator);
     validator.useErrorHandler = validator.useErrorHandler.bind(validator);
@@ -54,7 +57,7 @@ export class ValidatorMiddleware {
    * @param args validator parameters
    * @returns middleware
    */
-  query(args: ValidatorParams[]) {
+  query(args: ValidatorParams[]): (context: Context, next: Next) => Promise<unknown> {
     return async (context: Context, next: Next) => {
       for (const arg of args) {
         const value = context.request.url.searchParams.get(arg.key) || '';
@@ -78,7 +81,7 @@ export class ValidatorMiddleware {
    * @param args validator parameters
    * @returns middleware
    */
-  body(args: ValidatorParams[]) {
+  body(args: ValidatorParams[]): (context: Context, next: Next) => Promise<unknown> {
     return async (context: Context, next: Next) => {
       const body = await context.request.body.text();
 
@@ -111,7 +114,7 @@ export class ValidatorMiddleware {
    * @param args validator parameters
    * @returns middleware
    */
-  header(args: ValidatorHeaderParams[]) {
+  header(args: ValidatorHeaderParams[]): (context: Context, next: Next) => Promise<unknown> {
     return async (context: Context, next: Next) => {
       for (const arg of args) {
         const value = context.request.headers.get(arg.key) || '';

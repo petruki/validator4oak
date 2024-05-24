@@ -1,6 +1,6 @@
 {
-  "name": "@petruki/validator4oak",
-  "version": "1.0.0",
+  "name": "@trackerforce/validator4oak",
+  "version": "1.0.1",
   "description": "Validator middleware for Oak.",
   "tasks": {
     "fmt": "deno fmt mod.ts src/ --options-single-quote --options-line-width=120 --check",
@@ -11,5 +11,16 @@
     "clean": "rm -rf ./npm ./coverage",
     "cache-reload": "deno cache --reload --lock=deno.lock --lock-write mod.ts test/deps.ts"
   },
-  "lock": false
+  "exports": "./mod.ts",
+  "fmt": {
+    "exclude": [
+      "README.md"
+    ]
+  },
+  "lock": false,
+  "test": {
+    "include": [
+      "test/**/*.ts"
+    ]
+  }
 }
