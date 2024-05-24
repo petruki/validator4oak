@@ -1,4 +1,4 @@
-import { Context } from './deps.ts';
+import type { Context } from './deps.ts';
 
 export type SizeValidation = {
   min?: number;

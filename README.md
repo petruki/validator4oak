@@ -8,15 +8,14 @@ Validator & Sanitizer middleware for Oak.
 <div align="center">
 
 [![Master CI](https://github.com/petruki/validator4oak/actions/workflows/master.yml/badge.svg)](https://github.com/petruki/validator4oak/actions/workflows/master.yml)
-[![deno.land/x/validator4oak](https://shield.deno.dev/x/validator4oak)](https://deno.land/x/validator4oak)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=petruki_validator4oak&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=petruki_validator4oak)
+[![deno.land/x/validator4oak](https://shield.deno.dev/x/validator4oak)](https://deno.land/x/validator4oak)
+[![JSR](https://jsr.io/badges/@trackerforce/validator4oak)](https://jsr.io/@trackerforce/validator4oak)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </div>
 
 ***
-
-# `validator4oak` - Deno Module for Oak
 
 This module provides a middleware for [Oak](https://github.com/oakserver/oak) to validate request using JSON Schema.
 
@@ -29,7 +28,8 @@ This module provides a middleware for [Oak](https://github.com/oakserver/oak) to
 Import module with:
     
 ```typescript
-import { ValidatorMiddleware, ValidatorFn, ValidatorSn } from "https://deno.land/x/validator4oak@v[VERSION]/mod.ts";
+import * as mod from "@trackerforce/validator4oak@[VERSION]";
+import * as mod from "https://deno.land/x/validator4oak@v[VERSION]/mod.ts";
 ```
 
 # Usage

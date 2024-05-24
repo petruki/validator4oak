@@ -1,9 +1,18 @@
+/**
+ * ValidatorSn class provides a set of sanitizers to sanitize the input data.
+ */
 export class ValidatorSn {
-  static createSanitizer() {
+  /**
+   * Creates a new instance of ValidatorSn.
+   */
+  static createSanitizer(): ValidatorSn {
     return new ValidatorSn();
   }
 
-  escape() {
+  /**
+   * Escape special characters in a value.
+   */
+  escape(): (value: string) => string {
     return (value: string): string => {
       return value.replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
@@ -13,19 +22,28 @@ export class ValidatorSn {
     };
   }
 
-  trim() {
+  /**
+   * Trim a value.
+   */
+  trim(): (value: string) => string {
     return (value: string): string => {
       return value.trim();
     };
   }
 
-  lowerCase() {
+  /**
+   * Convert a value to lower case.
+   */
+  lowerCase(): (value: string) => string {
     return (value: string): string => {
       return value.toLowerCase();
     };
   }
 
-  upperCase() {
+  /**
+   * Convert a value to upper case.
+   */
+  upperCase(): (value: string) => string {
     return (value: string): string => {
       return value.toUpperCase();
     };

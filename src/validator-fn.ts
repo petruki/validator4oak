@@ -2,12 +2,21 @@ import type { SizeValidation, ValidatorResponse } from './validator-types.ts';
 
 const successResponse = { result: true, message: 'valid' };
 
+/**
+ * ValidatorFn class provides a set of methods to validate input values.
+ */
 export class ValidatorFn {
-  static createValidator() {
+  /**
+   * Creates a new instance of ValidatorFn.
+   */
+  static createValidator(): ValidatorFn {
     return new ValidatorFn();
   }
 
-  hasLenght(sizeValidation: SizeValidation) {
+  /**
+   * Check content length of a string.
+   */
+  hasLenght(sizeValidation: SizeValidation): (value: string, key: string, message?: string) => ValidatorResponse {
     return (value: string, key: string, message?: string): ValidatorResponse => {
       if (sizeValidation.max && value.length > sizeValidation.max) {
         return {
@@ -28,7 +37,10 @@ export class ValidatorFn {
     };
   }
 
-  isUrl() {
+  /**
+   * Check if value is a URL.
+   */
+  isUrl(): (value: string, key: string, message?: string) => ValidatorResponse {
     return (value: string, key: string, message?: string): ValidatorResponse => {
       if (!RegExp(/^(http|https|file):/, 'i').exec(value)) {
         return {
@@ -41,7 +53,10 @@ export class ValidatorFn {
     };
   }
 
-  isNumeric() {
+  /**
+   * Check if value is a number type.
+   */
+  isNumeric(): (value: string, key: string, message?: string) => ValidatorResponse {
     return (value: string, key: string, message?: string): ValidatorResponse => {
       if (isNaN(Number(value))) {
         return {
@@ -54,7 +69,10 @@ export class ValidatorFn {
     };
   }
 
-  isBoolean() {
+  /**
+   * Check if value is a boolean type.
+   */
+  isBoolean(): (value: string, key: string, message?: string) => ValidatorResponse {
     return (value: string, key: string, message?: string): ValidatorResponse => {
       if (value !== 'true' && value !== 'false') {
         return {
@@ -67,7 +85,10 @@ export class ValidatorFn {
     };
   }
 
-  isArray(sizeValidation?: SizeValidation) {
+  /**
+   * Check if value is an array type.
+   */
+  isArray(sizeValidation?: SizeValidation): (value: string, key: string, message?: string) => ValidatorResponse {
     return (value: string, key: string, message?: string): ValidatorResponse => {
       if (!Array.isArray(value)) {
         return {
