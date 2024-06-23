@@ -1,9 +1,9 @@
 import { ValidatorFn, ValidatorMiddleware } from '../../mod.ts';
-import { type Context, Router } from '../deps.ts';
+import { Context, Next, Router } from '../deps.ts';
 
 const router = new Router();
 
-const { body } = ValidatorMiddleware.createMiddleware();
+const { body } = ValidatorMiddleware.createMiddleware<Context, Next>();
 const { isArray } = ValidatorFn.createValidator();
 
 router.post(
