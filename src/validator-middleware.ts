@@ -1,11 +1,10 @@
-import type { Context, Next } from './deps.ts';
-import type { ErrorHandler, ValidatorHeaderParams, ValidatorParams } from './validator-types.ts';
+import type { ErrorHandler, IContext, INext, ValidatorHeaderParams, ValidatorParams } from './validator-types.ts';
 
 /**
  * Middleware to validate the request parameters
  */
-export class ValidatorMiddleware {
-  static createMiddleware(): ValidatorMiddleware {
+export class ValidatorMiddleware<T, Y> {
+  static createMiddleware<T, Y>(): ValidatorMiddleware<T, Y> {
     const validator = new ValidatorMiddleware();
     validator.runValidators = validator.runValidators.bind(validator);
     validator.useErrorHandler = validator.useErrorHandler.bind(validator);
@@ -16,12 +15,13 @@ export class ValidatorMiddleware {
     return validator;
   }
 
-  private errorHandler: ErrorHandler = (context: Context, error: string) => {
-    context.response.status = 422;
-    context.response.body = { error };
+  private errorHandler: ErrorHandler = (context: T, error: string) => {
+    const icontext = context as IContext;
+    icontext.response.status = 422;
+    icontext.response.body = { error };
   };
 
-  private runValidators(arg: ValidatorParams, value: string, context: Context) {
+  private runValidators(arg: ValidatorParams, value: string, context: T) {
     if (!value) {
       if (arg.optional) {
         return true;
@@ -57,21 +57,24 @@ export class ValidatorMiddleware {
    * @param args validator parameters
    * @returns middleware
    */
-  query(args: ValidatorParams[]): (context: Context, next: Next) => Promise<unknown> {
-    return async (context: Context, next: Next) => {
+  query(args: ValidatorParams[]): (context: T, next: Y) => Promise<unknown> {
+    return async (context: T, next: Y) => {
+      const icontext = context as IContext;
+      const inext = next as INext;
+
       for (const arg of args) {
-        const value = context.request.url.searchParams.get(arg.key) || '';
+        const value = icontext.request.url.searchParams.get(arg.key) || '';
 
         if (!this.runValidators(arg, value, context)) {
           return;
         }
 
         if (arg.sanitizer) {
-          context.request.url.searchParams.set(arg.key, arg.sanitizer.reduce((v, s) => s(v), value));
+          icontext.request.url.searchParams.set(arg.key, arg.sanitizer.reduce((v, s) => s(v), value));
         }
       }
 
-      return await next();
+      return await inext();
     };
   }
 
@@ -81,30 +84,33 @@ export class ValidatorMiddleware {
    * @param args validator parameters
    * @returns middleware
    */
-  body(args: ValidatorParams[]): (context: Context, next: Next) => Promise<unknown> {
-    return async (context: Context, next: Next) => {
-      const body = await context.request.body.text();
+  body(args: ValidatorParams[]): (context: T, next: Y) => Promise<unknown> {
+    return async (context: T, next: Y) => {
+      const icontext = context as IContext;
+      const inext = next as INext;
+
+      const body = await icontext.request.body.text();
 
       if (!body) {
         return this.errorHandler(context, 'Invalid request body');
       }
 
-      context.state.request_body = JSON.parse(body);
+      icontext.state.request_body = JSON.parse(body);
       for (const arg of args) {
         const value = arg.key.split('.').reduce((o, i) => {
           if (o) return o[i];
-        }, context.state.request_body);
+        }, icontext.state.request_body);
 
         if (!this.runValidators(arg, value, context)) {
           return;
         }
 
         if (arg.sanitizer) {
-          context.state.request_body[arg.key] = arg.sanitizer.reduce((v, s) => s(v), value);
+          icontext.state.request_body[arg.key] = arg.sanitizer.reduce((v, s) => s(v), value);
         }
       }
 
-      return await next();
+      return await inext();
     };
   }
 
@@ -114,17 +120,20 @@ export class ValidatorMiddleware {
    * @param args validator parameters
    * @returns middleware
    */
-  header(args: ValidatorHeaderParams[]): (context: Context, next: Next) => Promise<unknown> {
-    return async (context: Context, next: Next) => {
+  header(args: ValidatorHeaderParams[]): (context: T, next: Y) => Promise<unknown> {
+    return async (context: T, next: Y) => {
+      const icontext = context as IContext;
+      const inext = next as INext;
+
       for (const arg of args) {
-        const value = context.request.headers.get(arg.key) || '';
+        const value = icontext.request.headers.get(arg.key) || '';
 
         if (!this.runValidators(arg, value, context)) {
           return;
         }
       }
 
-      return await next();
+      return await inext();
     };
   }
 }

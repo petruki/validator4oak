@@ -19,11 +19,14 @@ Validator & Sanitizer middleware for Oak.
 
 This module provides a middleware for [Oak](https://github.com/oakserver/oak) to validate request using JSON Schema.
 
+**Compatibility**: Oak v14.0.0+
+
 - Validate request query, body, header parameters
 - Sanitize request query and body parameters
 - Define custom error handler
 - Create custom validators and sanitizers
 - Stack up multiple validators and sanitizers
+
 
 Import module with:
     
@@ -38,7 +41,7 @@ import * as mod from "https://deno.land/x/validator4oak@v[VERSION]/mod.ts";
 
 ```typescript
 const router = new Router();
-const { query } = ValidatorMiddleware.createMiddleware();
+const { query } = ValidatorMiddleware.createMiddleware<Context, Next>();
 const { isUrl } = ValidatorFn.createValidator();
 
 router.get('/api/v1/shorten',
@@ -80,7 +83,7 @@ router.post('/checkout/v1/confirm',
 ### Validate header parameters
 
 ```typescript
-const { header } = ValidatorMiddleware.createMiddleware();
+const { header } = ValidatorMiddleware.createMiddleware<Context, Next>();
 const { isNumber } = ValidatorFn.createValidator();
 
 router.post('/example/v1/shorten',
@@ -109,6 +112,13 @@ router.post('/message/v1/send',
 ### Testing
 
 Use `deno task test` to run tests.
+
+#### Check Oak compatibility
+
+Replace the Oak version in the `test/deps.ts` file to verify if middleware is compatible.
+```typescript
+export { Router, Context, Application } from "jsr:@oak/oak@[OAK_VERSION]";
+```
 
 ## Contributing
 

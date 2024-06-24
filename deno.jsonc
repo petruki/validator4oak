@@ -1,10 +1,10 @@
 {
   "name": "@trackerforce/validator4oak",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Validator middleware for Oak.",
   "tasks": {
     "fmt": "deno fmt mod.ts src/ --options-single-quote --options-line-width=120 --check",
-    "fmt:fix": "deno fmt mod.ts test/ src/ example/ --options-single-quote --options-line-width=120",
+    "fmt:fix": "deno fmt mod.ts src/ example/ --options-single-quote --options-line-width=120",
     "test": "deno test --allow-read --allow-net --coverage=coverage",
     "lcov": "deno coverage coverage --lcov --output=coverage/report.lcov",
     "cover": "deno task clean && deno task test && deno task lcov && genhtml -o coverage/html coverage/report.lcov",
