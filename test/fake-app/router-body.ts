@@ -1,5 +1,5 @@
 import { ValidatorFn, ValidatorMiddleware } from '../../mod.ts';
-import { Context, Next, Router } from '../deps.ts';
+import { type Context, type Next, Router } from '../deps.ts';
 
 const router = new Router();
 

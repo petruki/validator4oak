@@ -1,4 +1,4 @@
-import type { ErrorHandler, ValidatorHeaderParams, ValidatorParams, IContext, INext } from './validator-types.ts';
+import type { ErrorHandler, IContext, INext, ValidatorHeaderParams, ValidatorParams } from './validator-types.ts';
 
 /**
  * Middleware to validate the request parameters

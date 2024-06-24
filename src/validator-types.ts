@@ -34,11 +34,14 @@ export type IContext = {
     status: number;
     body: Record<string, unknown>;
   };
+  // deno-lint-ignore no-explicit-any
   state: Record<string | number | symbol, any>;
-}
+};
 
 export type INext = () => Promise<unknown>;
 
 export type ValidatorFunction = (value: string, key: string, message?: string) => ValidatorResponse;
 export type ValidatorSanitizer = (value: string) => string;
+
+// deno-lint-ignore no-explicit-any
 export type ErrorHandler = (context: any, error: string) => void;
