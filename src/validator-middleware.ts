@@ -4,6 +4,9 @@ import type { ErrorHandler, IContext, INext, ValidatorHeaderParams, ValidatorPar
  * Middleware to validate the request parameters
  */
 export class ValidatorMiddleware<T, Y> {
+  /**
+   * Create a new instance of the validator middleware for body, query, and header
+   */
   static createMiddleware<T, Y>(): ValidatorMiddleware<T, Y> {
     const validator = new ValidatorMiddleware();
     validator.runValidators = validator.runValidators.bind(validator);
@@ -13,6 +16,93 @@ export class ValidatorMiddleware<T, Y> {
     validator.body = validator.body.bind(validator);
     validator.header = validator.header.bind(validator);
     return validator;
+  }
+
+  /**
+   * Override the default error handler
+   *
+   * @param handler function to handle the error
+   */
+  useErrorHandler(handler: ErrorHandler) {
+    this.errorHandler = handler;
+  }
+
+  /**
+   * Check the query parameters
+   *
+   * @param args validator parameters
+   * @returns middleware
+   */
+  query(args: ValidatorParams[]): (context: T, next: Y) => Promise<unknown> {
+    return async (context: T, next: Y) => {
+      const icontext = context as IContext;
+      const inext = next as INext;
+
+      for (const arg of args) {
+        const value = icontext.request.url.searchParams.get(arg.key) || '';
+
+        if (!this.queryHandler(arg, value, context)) {
+          return;
+        }
+      }
+
+      return await inext();
+    };
+  }
+
+  /**
+   * Check the request body
+   *
+   * @param args validator parameters
+   * @returns middleware
+   */
+  body(args: ValidatorParams[]): (context: T, next: Y) => Promise<unknown> {
+    return async (context: T, next: Y) => {
+      const icontext = context as IContext;
+      const inext = next as INext;
+
+      const body = await icontext.request.body.text();
+
+      if (!body) {
+        return this.errorHandler(context, 'Invalid request body');
+      }
+
+      icontext.state.request_body = JSON.parse(body);
+      for (const arg of args) {
+        const values = this.getBodyValues(arg, icontext);
+
+        for (const value of values) {
+          if (!this.bodyHandler(arg, value, context)) {
+            return;
+          }
+        }
+      }
+
+      return await inext();
+    };
+  }
+
+  /**
+   * Check the request header
+   *
+   * @param args validator parameters
+   * @returns middleware
+   */
+  header(args: ValidatorHeaderParams[]): (context: T, next: Y) => Promise<unknown> {
+    return async (context: T, next: Y) => {
+      const icontext = context as IContext;
+      const inext = next as INext;
+
+      for (const arg of args) {
+        const value = icontext.request.headers.get(arg.key) || '';
+
+        if (!this.runValidators(arg, value, context)) {
+          return;
+        }
+      }
+
+      return await inext();
+    };
   }
 
   private errorHandler: ErrorHandler = (context: T, error: string) => {
@@ -42,98 +132,63 @@ export class ValidatorMiddleware<T, Y> {
     return true;
   }
 
-  /**
-   * Override the default error handler
-   *
-   * @param handler function to handle the error
-   */
-  useErrorHandler(handler: ErrorHandler) {
-    this.errorHandler = handler;
+  private queryHandler(arg: ValidatorParams, value: string, context: T) {
+    if (!this.runValidators(arg, value, context)) {
+      return;
+    }
+
+    if (arg.sanitizer) {
+      (context as IContext).request.url.searchParams.set(arg.key, arg.sanitizer.reduce((v, s) => s(v), value));
+    }
+
+    return true;
   }
 
-  /**
-   * Check the query parameters
-   *
-   * @param args validator parameters
-   * @returns middleware
-   */
-  query(args: ValidatorParams[]): (context: T, next: Y) => Promise<unknown> {
-    return async (context: T, next: Y) => {
-      const icontext = context as IContext;
-      const inext = next as INext;
+  private bodyHandler(arg: ValidatorParams, value: string, context: T) {
+    if (!this.runValidators(arg, value, context)) {
+      return;
+    }
 
-      for (const arg of args) {
-        const value = icontext.request.url.searchParams.get(arg.key) || '';
+    if (arg.sanitizer) {
+      (context as IContext).state.request_body[arg.key] = arg.sanitizer.reduce((v, s) => s(v), value);
+    }
 
-        if (!this.runValidators(arg, value, context)) {
-          return;
-        }
-
-        if (arg.sanitizer) {
-          icontext.request.url.searchParams.set(arg.key, arg.sanitizer.reduce((v, s) => s(v), value));
-        }
-      }
-
-      return await inext();
-    };
+    return true;
   }
 
-  /**
-   * Check the request body
-   *
-   * @param args validator parameters
-   * @returns middleware
-   */
-  body(args: ValidatorParams[]): (context: T, next: Y) => Promise<unknown> {
-    return async (context: T, next: Y) => {
-      const icontext = context as IContext;
-      const inext = next as INext;
+  private getBodyValues(arg: ValidatorParams, icontext: IContext) {
+    const keys = arg.key.split('.');
 
-      const body = await icontext.request.body.text();
+    if (arg.key.includes('*')) {
+      return this.getValues(icontext.state.request_body, keys);
+    }
 
-      if (!body) {
-        return this.errorHandler(context, 'Invalid request body');
-      }
-
-      icontext.state.request_body = JSON.parse(body);
-      for (const arg of args) {
-        const value = arg.key.split('.').reduce((o, i) => {
-          if (o) return o[i];
-        }, icontext.state.request_body);
-
-        if (!this.runValidators(arg, value, context)) {
-          return;
-        }
-
-        if (arg.sanitizer) {
-          icontext.state.request_body[arg.key] = arg.sanitizer.reduce((v, s) => s(v), value);
-        }
-      }
-
-      return await inext();
-    };
+    return [
+      keys.reduce((o, i) => {
+        if (o) return o[i];
+      }, icontext.state.request_body),
+    ];
   }
 
-  /**
-   * Check the request header
-   *
-   * @param args validator parameters
-   * @returns middleware
-   */
-  header(args: ValidatorHeaderParams[]): (context: T, next: Y) => Promise<unknown> {
-    return async (context: T, next: Y) => {
-      const icontext = context as IContext;
-      const inext = next as INext;
+  private getValues(obj: Record<string, unknown>, keys: string[]): unknown[] {
+    if (!keys.length) {
+      return [obj];
+    }
 
-      for (const arg of args) {
-        const value = icontext.request.headers.get(arg.key) || '';
+    const key = String(keys.shift());
+    if (key === '*') {
+      return this.getValues(obj, keys.slice());
+    }
 
-        if (!this.runValidators(arg, value, context)) {
-          return;
-        }
-      }
+    const value = obj[key];
+    if (!value) {
+      return [''];
+    }
 
-      return await inext();
-    };
+    if (Array.isArray(value)) {
+      return value.flatMap((v) => this.getValues(v as Record<string, unknown>, keys.slice()));
+    }
+
+    return this.getValues(value as Record<string, unknown>, keys);
   }
 }

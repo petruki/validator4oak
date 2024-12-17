@@ -30,16 +30,15 @@ Deno.test({
 Deno.test({
   name: 'it should PASS when validating a body - all fields provided',
   async fn() {
-    const request = await superoak(app);
-    const response = await request.post('/validate-body1').send({
+    const body = {
       name: 'John Doe',
       phone: '1234567890',
-    }).expect(200);
+    };
 
-    assertEquals(response.body, {
-      name: 'John Doe',
-      phone: '1234567890',
-    });
+    const request = await superoak(app);
+    const response = await request.post('/validate-body1').send(body).expect(200);
+
+    assertEquals(response.body, body);
   },
 });
 
@@ -62,20 +61,17 @@ Deno.test({
 Deno.test({
   name: 'it should PASS when validating a body - all nested fields provided',
   async fn() {
-    const request = await superoak(app);
-    const response = await request.post('/validate-body2').send({
+    const body = {
       account: {
         name: 'John Doe',
         phone: '1234567890',
       },
-    }).expect(200);
+    };
 
-    assertEquals(response.body, {
-      account: {
-        name: 'John Doe',
-        phone: '1234567890',
-      },
-    });
+    const request = await superoak(app);
+    const response = await request.post('/validate-body2').send(body).expect(200);
+
+    assertEquals(response.body, body);
   },
 });
 
@@ -96,14 +92,12 @@ Deno.test({
 Deno.test({
   name: 'it should PASS when validating a body - all array fields provided',
   async fn() {
-    const request = await superoak(app);
-    const response = await request.post('/validate-body3').send({
-      colors: ['red', 'green', 'blue'],
-    }).expect(200);
+    const body = { colors: ['red', 'green', 'blue'] };
 
-    assertEquals(response.body, {
-      colors: ['red', 'green', 'blue'],
-    });
+    const request = await superoak(app);
+    const response = await request.post('/validate-body3').send(body).expect(200);
+
+    assertEquals(response.body, body);
   },
 });
 
@@ -138,31 +132,99 @@ Deno.test({
 Deno.test({
   name: 'it should PASS when validating a body - array field is within the limits',
   async fn() {
-    const request = await superoak(app);
-    const response = await request.post('/validate-body4').send({
-      colors: ['red', 'green'],
-    }).expect(200);
+    const body = { colors: ['red', 'green'] };
 
-    assertEquals(response.body, {
-      colors: ['red', 'green'],
-    });
+    const request = await superoak(app);
+    const response = await request.post('/validate-body4').send(body).expect(200);
+
+    assertEquals(response.body, body);
   },
 });
 
 Deno.test({
   name: 'it should PASS when validating a body - optional field is missing',
   async fn() {
+    const body = { account: { name: 'John Doe' } };
+
     const request = await superoak(app);
-    const response = await request.post('/validate-body5').send({
-      account: {
-        name: 'John Doe',
-      },
-    }).expect(200);
+    const response = await request.post('/validate-body5').send(body).expect(200);
+
+    assertEquals(response.body, body);
+  },
+});
+
+Deno.test({
+  name: 'it should PASS when validating a body - array of objects',
+  async fn() {
+    const body = {
+      colors: [
+        { name: 'red' },
+        { name: 'green' },
+      ],
+    };
+
+    const request = await superoak(app);
+    const response = await request.post('/validate-body6').send(body).expect(200);
+
+    assertEquals(response.body, body);
+  }
+});
+
+Deno.test({
+  name: 'it should FAIL when validating a body - element from array does not meet the requirements',
+  async fn() {
+    const body = {
+      colors: [
+        { name: 'r' },
+        { name: 'green' },
+      ],
+    };
+
+    const request = await superoak(app);
+    const response = await request.post('/validate-body6').send(body).expect(422);
 
     assertEquals(response.body, {
-      account: {
-        name: 'John Doe',
-      },
+      error: 'Invalid colors.*.name input. Cause: it is too short for the minimum length of 3.',
     });
-  },
+  }
+});
+
+Deno.test({
+  name: 'it should PASS when validating a body - array of nested objects',
+  async fn() {
+    const body = {
+      color: {
+        list: [
+          { name: 'red' },
+          { name: 'green', hex: '#00FF00' },
+        ],
+      },
+    };
+
+    const request = await superoak(app);
+    const response = await request.post('/validate-body7').send(body).expect(200);
+
+    assertEquals(response.body, body);
+  }
+});
+
+Deno.test({
+  name: 'it should FAIL when validating a body - array of nested objects does not meet the optional rule requirement',
+  async fn() {
+    const body = {
+      color: {
+        list: [
+          { name: 'red' },
+          { name: 'green', hex: '#00' },
+        ],
+      },
+    };
+
+    const request = await superoak(app);
+    const response = await request.post('/validate-body7').send(body).expect(422);
+
+    assertEquals(response.body, {
+      error: 'Invalid color.list.*.hex input. Cause: it is too short for the minimum length of 6.',
+    });
+  }
 });
