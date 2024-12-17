@@ -80,6 +80,20 @@ router.post('/checkout/v1/confirm',
 );
 ```
 
+It's also possible to validate array of complex objects using `isArray()` and `*` wildcard to access array elements.
+
+```typescript
+router.post('/checkout/v1/confirm',
+  body([
+    { key: 'order.items', validators: [isArray()] },
+    { key: 'order.items.*.sku', validators: [isString()] },
+    { key: 'order.items.*.quantity', validators: [isNumeric()] },
+  ]), (ctx: Context) => {
+    // ...
+  },
+);
+```
+
 ### Validate header parameters
 
 ```typescript
