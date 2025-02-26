@@ -129,7 +129,7 @@ Use `deno task test` to run tests.
 
 #### Check Oak compatibility
 
-Replace the Oak version in the `test/deps.ts` file to verify if middleware is compatible.
+Replace the Oak version in the `tests/deps.ts` file to verify if middleware is compatible.
 ```typescript
 export { Router, Context, Application } from "jsr:@oak/oak@[OAK_VERSION]";
 ```

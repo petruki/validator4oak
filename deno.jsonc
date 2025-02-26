@@ -10,7 +10,7 @@
     "lcov": "deno coverage coverage --lcov --output=coverage/report.lcov",
     "cover": "deno task clean && deno task test && deno task lcov && genhtml -o coverage/html coverage/report.lcov",
     "clean": "rm -rf ./npm ./coverage",
-    "cache-reload": "deno cache --allow-import --reload --lock=deno.lock mod.ts test/deps.ts"
+    "cache-reload": "deno cache --allow-import --reload --lock=deno.lock mod.ts tests/deps.ts"
   },
   "exports": "./mod.ts",
   "fmt": {
@@ -21,7 +21,7 @@
   "lock": false,
   "test": {
     "include": [
-      "test/**/*.ts"
+      "tests/**/*.ts"
     ]
   }
 }
