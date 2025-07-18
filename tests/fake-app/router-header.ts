@@ -3,13 +3,13 @@ import { type Context, Router } from '../deps.ts';
 
 const router = new Router();
 
-const { header } = ValidatorMiddleware.createMiddleware();
+const { header, check } = ValidatorMiddleware.createMiddleware();
 const { isNumeric } = ValidatorFn.createValidator();
 
 router.get(
   '/validate-header1',
   header([
-    { key: 'x-api-key', validators: [isNumeric()] },
+    check('x-api-key').ifValue([isNumeric()])
   ]),
   ({ response, request }: Context) => {
     response.status = 200;
