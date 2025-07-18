@@ -3,7 +3,7 @@ import { type Context, Router } from '../deps.ts';
 
 const router = new Router();
 
-const { query } = ValidatorMiddleware.createMiddleware();
+const { query, check } = ValidatorMiddleware.createMiddleware();
 const { hasLenght, isUrl, isNumeric, isBoolean } = ValidatorFn.createValidator();
 
 const isUrlDomainDotCom = (value: string) => {
@@ -16,7 +16,7 @@ const isUrlDomainDotCom = (value: string) => {
 router.get(
   '/validate-query1',
   query([
-    { key: 'name' },
+    check('name').exists()
   ]),
   ({ response }: Context) => {
     response.status = 200;
@@ -27,7 +27,7 @@ router.get(
 router.get(
   '/validate-query2',
   query([
-    { key: 'name', validators: [hasLenght({ min: 2, max: 5 })] },
+    check('name').ifValue([hasLenght({ min: 2, max: 5 })])
   ]),
   ({ response }: Context) => {
     response.status = 200;
@@ -38,7 +38,7 @@ router.get(
 router.get(
   '/validate-query3',
   query([
-    { key: 'url', validators: [isUrl()] },
+    check('url').ifValue([isUrl()])
   ]),
   ({ response }: Context) => {
     response.status = 200;
@@ -49,7 +49,7 @@ router.get(
 router.get(
   '/validate-query4',
   query([
-    { key: 'number', validators: [isNumeric()] },
+    check('number').ifValue([isNumeric()])
   ]),
   ({ response }: Context) => {
     response.status = 200;
@@ -60,7 +60,7 @@ router.get(
 router.get(
   '/validate-query5',
   query([
-    { key: 'boolean', validators: [isBoolean()] },
+    check('boolean').ifValue([isBoolean()])
   ]),
   ({ response }: Context) => {
     response.status = 200;
@@ -71,7 +71,7 @@ router.get(
 router.get(
   '/validate-query6',
   query([
-    { key: 'url', validators: [isUrl(), isUrlDomainDotCom] },
+    check('url').ifValue([isUrl(), isUrlDomainDotCom]),
   ]),
   ({ response }: Context) => {
     response.status = 200;

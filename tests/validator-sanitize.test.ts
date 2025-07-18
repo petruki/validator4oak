@@ -45,3 +45,12 @@ Deno.test({
       .expect(200, { name: '&lt;script&gt;alert(&quot;hi&quot;)&lt;/script&gt;' });
   },
 });
+
+Deno.test({
+  name: 'it should sanitize the request body - using multiple sanitizers',
+  async fn() {
+    const request = await superoak(app);
+    await request.post('/sanitize-body2').send({ name: '  HELLOWORLD  ' })
+      .expect(200, { name: 'helloworld' });
+  },
+});

@@ -3,14 +3,12 @@ import { type Context, Router } from '../deps.ts';
 
 const router = new Router();
 
-const { query, body } = ValidatorMiddleware.createMiddleware();
+const { query, body, check } = ValidatorMiddleware.createMiddleware();
 const { escape, lowerCase, upperCase, trim } = ValidatorSn.createSanitizer();
 
 router.get(
   '/sanitize-query1',
-  query([
-    { key: 'name', sanitizer: [escape()] },
-  ]),
+  query(check('name').sanitizeWith(escape()).exists()),
   ({ response, request }: Context) => {
     const name = request.url.searchParams.get('name');
     response.status = 200;
@@ -22,9 +20,7 @@ router.get(
 
 router.get(
   '/sanitize-query2',
-  query([
-    { key: 'name', sanitizer: [lowerCase()] },
-  ]),
+  query(check('name').sanitizeWith(lowerCase()).exists()),
   ({ response, request }: Context) => {
     const name = request.url.searchParams.get('name');
     response.status = 200;
@@ -36,9 +32,7 @@ router.get(
 
 router.get(
   '/sanitize-query3',
-  query([
-    { key: 'name', sanitizer: [upperCase()] },
-  ]),
+  query(check('name').sanitizeWith(upperCase()).exists()),
   ({ response, request }: Context) => {
     const name = request.url.searchParams.get('name');
     response.status = 200;
@@ -50,9 +44,7 @@ router.get(
 
 router.get(
   '/sanitize-query4',
-  query([
-    { key: 'name', sanitizer: [trim()] },
-  ]),
+  query(check('name').sanitizeWith(trim()).exists()),
   ({ response, request }: Context) => {
     const name = request.url.searchParams.get('name');
     response.status = 200;
@@ -64,9 +56,22 @@ router.get(
 
 router.post(
   '/sanitize-body1',
-  body([
-    { key: 'name', sanitizer: [escape()] },
-  ]),
+  body(check('name').sanitizeWith(escape()).exists()),
+  ({ response, state }: Context) => {
+    const name = state.request_body.name;
+    response.status = 200;
+    response.body = {
+      name,
+    };
+  },
+);
+
+router.post(
+  '/sanitize-body2',
+  body(check('name')
+    .sanitizeWith([trim(), lowerCase()])
+    .exists()
+  ),
   ({ response, state }: Context) => {
     const name = state.request_body.name;
     response.status = 200;

@@ -21,9 +21,9 @@ This module provides a middleware for [Oak](https://github.com/oakserver/oak) to
 
 **Compatibility**: Oak v14.0.0+
 
-- Validate request query, body, header parameters
-- Sanitize request query and body parameters
-- Define custom error handler
+- Validate request query, body, form, header parameters
+- Sanitize request parameters
+- Define custom error handlers
 - Create custom validators and sanitizers
 - Stack up multiple validators and sanitizers
 
@@ -41,13 +41,12 @@ import * as mod from "https://deno.land/x/validator4oak@v[VERSION]/mod.ts";
 
 ```typescript
 const router = new Router();
-const { query } = ValidatorMiddleware.createMiddleware<Context, Next>();
+const { query, check } = ValidatorMiddleware.createMiddleware<Context, Next>();
 const { isUrl } = ValidatorFn.createValidator();
 
 router.get('/api/v1/shorten',
-  query([
-    { key: 'url', validators: [isUrl()] },
-  ]), (ctx: Context) => {
+  query(check('name').ifValue(isUrl())), 
+  (ctx: Context) => {
     // ...
   },
 );
@@ -57,24 +56,39 @@ Optional query parameters:
 
 ```typescript
 router.get('/api/v1/shorten',
-  query([
-    { key: 'url', optional: true },
-  ]), (ctx: Context) => {
+  query(check('url').isOptional()), 
+  (ctx: Context) => {
     // ...
   },
 );
 ```
 
-### Validate body parameters
+### Validate body and form parameters
 
 Key body parameters can be accessed using complex keys, e.g. `order.number`.<br>
 Since Oak v14, body request can only be consumed once, so you'll need to use state.request_body to access it within the route.
 
+Using body:
+
 ```typescript
 router.post('/checkout/v1/confirm',
-  body([
-    { key: 'order.number', validators: [isNumeric()] },
-  ]), (ctx: Context) => {
+  body(check('order.number').ifValue(isNumeric())),
+  (ctx: Context) => {
+    // ...
+    const body = ctx.state.request_body; // Access the body request
+    // ...
+  },
+);
+```
+
+Using form:
+
+```typescript
+router.post('/checkout/v1/confirm',
+  form(check('order.number').ifValue(isNumeric())), 
+  (ctx: Context) => {
+    // ...
+    const body = ctx.state.request_body; // Access the form request
     // ...
   },
 );
@@ -85,9 +99,9 @@ It's also possible to validate array of complex objects using `isArray()` and `*
 ```typescript
 router.post('/checkout/v1/confirm',
   body([
-    { key: 'order.items', validators: [isArray()] },
-    { key: 'order.items.*.sku', validators: [isString()] },
-    { key: 'order.items.*.quantity', validators: [isNumeric()] },
+    check('order.items').ifValue(isArray()),
+    check('order.items.*.sku').ifValue([isString(), hasLenght({ min: 6 })]),
+    check('order.items.*.quantity').ifValue(isNumeric())
   ]), (ctx: Context) => {
     // ...
   },
@@ -101,9 +115,8 @@ const { header } = ValidatorMiddleware.createMiddleware<Context, Next>();
 const { isNumber } = ValidatorFn.createValidator();
 
 router.post('/example/v1/shorten',
-  header([
-    { key: 'x-api-key', validators: [isNumber()] },
-  ]), (ctx: Context) => {
+  header(check('x-api-key').ifValue(isNumber())), 
+  (ctx: Context) => {
     // ...
   },
 );
@@ -115,9 +128,11 @@ router.post('/example/v1/shorten',
 const { escape } = ValidatorSn.createSanitizer();
 
 router.post('/message/v1/send',
-  body([
-    { key: 'message', validators: [hasLenght({ max: 500 })], sanitizers: [escape()] },
-  ]), (ctx: Context) => {
+  body(
+    check('message')
+      .sanitizeWith([escape(), trim()])
+      .ifValue(hasLenght({ max: 500 }))
+  ), (ctx: Context) => {
     // ...
   },
 );
@@ -131,9 +146,9 @@ Use `deno task test` to run tests.
 
 Replace the Oak version in the `tests/deps.ts` file to verify if middleware is compatible.
 ```typescript
-export { Router, Context, Application } from "jsr:@oak/oak@[OAK_VERSION]";
+export * from "jsr:@oak/oak@[OAK_VERSION]";
 ```
 
 ## Contributing
 
-Please do open an issue if you have some cool ideas to contribute.
+Please open an issue if you have some cool ideas to contribute.
