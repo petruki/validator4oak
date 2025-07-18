@@ -48,4 +48,13 @@ export class ValidatorSn {
       return value.toUpperCase();
     };
   }
+
+  /**
+   * Replace all occurrences of a substring in a value.
+   */
+  replace(search: string, replacement: string): (value: string) => string {
+    return (value: string): string => {
+      return value.split(search).join(replacement);
+    };
+  }
 }

@@ -15,9 +15,7 @@ useErrorHandler((context, message) => {
 
 router.get(
   '/validate-custom-error1',
-  query([
-    check('name').exists()
-  ]),
+  query(check('name').exists()),
   ({ response }: Context) => {
     response.status = 200;
     response.body = {};

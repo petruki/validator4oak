@@ -15,9 +15,7 @@ const isUrlDomainDotCom = (value: string) => {
 
 router.get(
   '/validate-query1',
-  query([
-    check('name').exists()
-  ]),
+  query(check('name').exists()),
   ({ response }: Context) => {
     response.status = 200;
     response.body = {};
@@ -26,9 +24,7 @@ router.get(
 
 router.get(
   '/validate-query2',
-  query([
-    check('name').ifValue([hasLenght({ min: 2, max: 5 })])
-  ]),
+  query(check('name').ifValue(hasLenght({ min: 2, max: 5 }))),
   ({ response }: Context) => {
     response.status = 200;
     response.body = {};
@@ -37,9 +33,7 @@ router.get(
 
 router.get(
   '/validate-query3',
-  query([
-    check('url').ifValue([isUrl()])
-  ]),
+  query(check('url').ifValue(isUrl())),
   ({ response }: Context) => {
     response.status = 200;
     response.body = {};
@@ -48,9 +42,7 @@ router.get(
 
 router.get(
   '/validate-query4',
-  query([
-    check('number').ifValue([isNumeric()])
-  ]),
+  query(check('number').ifValue(isNumeric())),
   ({ response }: Context) => {
     response.status = 200;
     response.body = {};
@@ -59,9 +51,7 @@ router.get(
 
 router.get(
   '/validate-query5',
-  query([
-    check('boolean').ifValue([isBoolean()])
-  ]),
+  query(check('boolean').ifValue(isBoolean())),
   ({ response }: Context) => {
     response.status = 200;
     response.body = {};
@@ -70,9 +60,7 @@ router.get(
 
 router.get(
   '/validate-query6',
-  query([
-    check('url').ifValue([isUrl(), isUrlDomainDotCom]),
-  ]),
+  query(check('url').ifValue(isUrl(), isUrlDomainDotCom)),
   ({ response }: Context) => {
     response.status = 200;
     response.body = {};

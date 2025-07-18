@@ -228,3 +228,164 @@ Deno.test({
     });
   }
 });
+
+Deno.test({
+  name: 'it should PASS when validating a body - object type',
+  async fn() {
+    const body = {
+      user: {
+        name: 'John Doe',
+        age: 30,
+      },
+    };
+
+    const request = await superoak(app);
+    const response = await request.post('/validate-body8').send(body).expect(200);
+
+    assertEquals(response.body, body);
+  },
+});
+
+Deno.test({
+  name: 'it should FAIL when validating a body - object type with missing required field',
+  async fn() {
+    const request = await superoak(app);
+    const response = await request.post('/validate-body8').send({
+      user: 'John Doe',
+    }).expect(422);
+
+    assertEquals(response.body, {
+      error: 'Invalid user input. Cause: it is not a valid object.',
+    });
+  },
+});
+
+Deno.test({
+  name: 'it should PASS when validating a body - contains string',
+  async fn() {
+    const body = { login: 'NS12345' };
+
+    const request = await superoak(app);
+    const response = await request.post('/validate-body9').send(body).expect(200);
+
+    assertEquals(response.body, body);
+  },
+});
+
+Deno.test({
+  name: 'it should FAIL when validating a body - contains string does not match',
+  async fn() {
+    const request = await superoak(app);
+    const response = await request.post('/validate-body9').send({
+      login: '12345',
+    }).expect(422);
+
+    assertEquals(response.body, {
+      error: 'Invalid login input. Cause: it does not contain "NS".',
+    });
+  },
+});
+
+Deno.test({
+  name: 'it should PASS when validating a body - contains string with case sensitivity',
+  async fn() {
+    const body = { code: 'test123' };
+
+    const request = await superoak(app);
+    const response = await request.post('/validate-body9').send(body).expect(200);
+
+    assertEquals(response.body, body);
+  },
+});
+
+Deno.test({
+  name: 'it should FAIL when validating a body - contains string with case sensitivity does not match',
+  async fn() {
+    const request = await superoak(app);
+    const response = await request.post('/validate-body9').send({
+      code: 'TEST123',
+    }).expect(422);
+
+    assertEquals(response.body, {
+      error: 'Invalid code input. Cause: it does not contain "test".',
+    });
+  },
+});
+
+Deno.test({
+  name: 'it should PASS when validating a body - matches pattern',
+  async fn() {
+    const body = { phone: '123-456-7890' };
+
+    const request = await superoak(app);
+    const response = await request.post('/validate-body10').send(body).expect(200);
+
+    assertEquals(response.body, body);
+  },
+});
+
+Deno.test({
+  name: 'it should FAIL when validating a body - matches pattern does not match',
+  async fn() {
+    const request = await superoak(app);
+    const response = await request.post('/validate-body10').send({
+      phone: '1234567890',
+    }).expect(422);
+
+    assertEquals(response.body, {
+      error: 'Invalid phone input. Cause: it does not match the pattern.',
+    });
+  },
+});
+
+Deno.test({
+  name: 'it should PASS when validating a body - values are in a set',
+  async fn() {
+    const body = { cities: ['New York', 'Los Angeles'] };
+
+    const request = await superoak(app);
+    const response = await request.post('/validate-body11').send(body).expect(200);
+
+    assertEquals(response.body, body);
+  }
+});
+
+Deno.test({
+  name: 'it should PASS when validating a body - value is in a set',
+  async fn() {
+    const body = { cities: 'New York' };
+
+    const request = await superoak(app);
+    const response = await request.post('/validate-body11').send(body).expect(200);
+
+    assertEquals(response.body, body);
+  }
+});
+
+Deno.test({
+  name: 'it should FAIL when validating a body - value are not in a set',
+  async fn() {
+    const request = await superoak(app);
+    const response = await request.post('/validate-body11').send({
+      cities: ['Miami', 'Houston'],
+    }).expect(422);
+
+    assertEquals(response.body, {
+      error: 'Invalid cities input. Cause: it is not in the allowed values.',
+    });
+  },
+});
+
+Deno.test({
+  name: 'it should FAIL when validating a body - value is not in a set',
+  async fn() {
+    const request = await superoak(app);
+    const response = await request.post('/validate-body11').send({
+      cities: 'Miami',
+    }).expect(422);
+
+    assertEquals(response.body, {
+      error: 'Invalid cities input. Cause: it is not in the allowed values.',
+    });
+  },
+});

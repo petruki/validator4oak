@@ -10,12 +10,12 @@ const { trim } = ValidatorSn.createSanitizer();
 router.post('/validate-all',
   header(check('x-custom-header').exists()),
   query(check('cache').ifValue(isBoolean())),
-  body([
+  body(
     check('name').exists(),
     check('phone')
       .sanitizeWith(trim())
-      .ifValue([isNumeric(), hasLenght({ min: 10, max: 15 })])
-  ]),
+      .ifValue(isNumeric(), hasLenght({ min: 10, max: 15 }))
+  ),
   ({ request, response, state }: Context) => {
   response.status = 200;
   response.body = {

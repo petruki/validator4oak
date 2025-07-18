@@ -17,11 +17,11 @@ Validator & Sanitizer middleware for Oak.
 
 ***
 
-This module provides a middleware for [Oak](https://github.com/oakserver/oak) to validate request using JSON Schema.
+This module provides a middleware for [Oak](https://github.com/oakserver/oak) to validate and sanitize requests.
 
 **Compatibility**: Oak v14.0.0+
 
-- Validate request query, body, form, header parameters
+- Validate request query, body, form and header parameters
 - Sanitize request parameters
 - Define custom error handlers
 - Create custom validators and sanitizers
@@ -98,11 +98,11 @@ It's also possible to validate array of complex objects using `isArray()` and `*
 
 ```typescript
 router.post('/checkout/v1/confirm',
-  body([
+  body(
     check('order.items').ifValue(isArray()),
-    check('order.items.*.sku').ifValue([isString(), hasLenght({ min: 6 })]),
+    check('order.items.*.sku').ifValue(isString(), hasLenght({ min: 6 })),
     check('order.items.*.quantity').ifValue(isNumeric())
-  ]), (ctx: Context) => {
+  ), (ctx: Context) => {
     // ...
   },
 );
@@ -125,12 +125,13 @@ router.post('/example/v1/shorten',
 ### Sanitize parameters
 
 ```typescript
-const { escape } = ValidatorSn.createSanitizer();
+const { escape, trim } = ValidatorSn.createSanitizer();
+const { hasLenght } = ValidatorFn.createValidator();
 
 router.post('/message/v1/send',
   body(
     check('message')
-      .sanitizeWith([escape(), trim()])
+      .sanitizeWith(escape(), trim())
       .ifValue(hasLenght({ max: 500 }))
   ), (ctx: Context) => {
     // ...
