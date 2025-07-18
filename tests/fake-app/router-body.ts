@@ -4,7 +4,7 @@ import { type Context, type Next, Router } from '../deps.ts';
 const router = new Router();
 
 const { body, check } = ValidatorMiddleware.createMiddleware<Context, Next>();
-const { isArray, isIn, isObject, contains, matches, hasLenght } = ValidatorFn.createValidator();
+const { isArray, isIn, isObject, isString, contains, matches, hasLenght, hasAllowedCharacters } = ValidatorFn.createValidator();
 
 router.post(
   '/validate-body1',
@@ -108,6 +108,24 @@ router.post(
 router.post(
   '/validate-body11',
   body(check('cities').ifValue(isIn(['New York', 'Los Angeles', 'Chicago']))),
+  ({ response, state }: Context) => {
+    response.status = 200;
+    response.body = state.request_body;
+  },
+);
+
+router.post(
+  '/validate-body12',
+  body(check('feature').ifValue(isString())),
+  ({ response, state }: Context) => {
+    response.status = 200;
+    response.body = state.request_body;
+  },
+);
+
+router.post(
+  '/validate-body13',
+  body(check('feature').ifValue(hasAllowedCharacters('a-zA-Z0-9_'))),
   ({ response, state }: Context) => {
     response.status = 200;
     response.body = state.request_body;

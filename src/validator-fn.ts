@@ -36,6 +36,25 @@ export class ValidatorFn {
   }
 
   /**
+   * Check if value contains only allowed characters.
+   */
+  hasAllowedCharacters(
+    allowedChars: string,
+  ): (value: string, key: string, message?: string) => ValidatorResponse {
+    return (value: string, key: string, message?: string): ValidatorResponse => {
+      const regex = new RegExp(`^[${allowedChars}]+$`);
+      if (!regex.test(value)) {
+        return ValidatorFn.failed(
+          message ||
+            `Invalid ${key} input. Cause: it contains invalid characters. Allowed characters: ${allowedChars}.`,
+        );
+      }
+
+      return successResponse;
+    };
+  }
+
+  /**
    * Check if value is in the allowed values.
    */
   isIn(values: string[]): (value: string | string[], key: string, message?: string) => ValidatorResponse {
@@ -132,6 +151,19 @@ export class ValidatorFn {
     return (value: string, key: string, message?: string): ValidatorResponse => {
       if (typeof value !== 'object' || value === null || Array.isArray(value)) {
         return ValidatorFn.failed(message || `Invalid ${key} input. Cause: it is not a valid object.`);
+      }
+
+      return successResponse;
+    };
+  }
+
+  /**
+   * Check if value is a string type.
+   */
+  isString(): (value: string, key: string, message?: string) => ValidatorResponse {
+    return (value: string, key: string, message?: string): ValidatorResponse => {
+      if (typeof value !== 'string') {
+        return ValidatorFn.failed(message || `Invalid ${key} input. Cause: it is not a valid string.`);
       }
 
       return successResponse;
