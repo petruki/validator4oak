@@ -4,7 +4,7 @@ import { type Context, Router } from '../deps.ts';
 const router = new Router();
 
 const { query, body, check } = ValidatorMiddleware.createMiddleware();
-const { escape, lowerCase, upperCase, trim } = ValidatorSn.createSanitizer();
+const { escape, lowerCase, upperCase, trim, replace } = ValidatorSn.createSanitizer();
 
 router.get(
   '/sanitize-query1',
@@ -69,9 +69,21 @@ router.post(
 router.post(
   '/sanitize-body2',
   body(check('name')
-    .sanitizeWith([trim(), lowerCase()])
+    .sanitizeWith(trim(), lowerCase())
     .exists()
   ),
+  ({ response, state }: Context) => {
+    const name = state.request_body.name;
+    response.status = 200;
+    response.body = {
+      name,
+    };
+  },
+);
+
+router.post(
+  '/sanitize-body3',
+  body(check('name').sanitizeWith(replace(' ', '-')).exists()),
   ({ response, state }: Context) => {
     const name = state.request_body.name;
     response.status = 200;

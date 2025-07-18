@@ -4,7 +4,7 @@ import { type Context, type Next, Router } from '../deps.ts';
 const router = new Router();
 
 const { body, check } = ValidatorMiddleware.createMiddleware<Context, Next>();
-const { isArray, isNumeric, hasLenght } = ValidatorFn.createValidator();
+const { isArray, isIn, isObject, contains, matches, hasLenght } = ValidatorFn.createValidator();
 
 router.post(
   '/validate-body1',
@@ -44,10 +44,10 @@ router.post(
 
 router.post(
   '/validate-body5',
-  body([
+  body(
     check('account.name').exists(),
     check('account.phone').isOptional()
-  ]),
+  ),
   ({ response, state }: Context) => {
     response.status = 200;
     response.body = state.request_body;
@@ -65,24 +65,53 @@ router.post(
 
 router.post(
   '/validate-body7',
-  body([
+  body(
     check('color.list.*.name').ifValue(hasLenght({ min: 3 })),
     check('color.list.*.hex').maybe().ifValue(hasLenght({ min: 6 }))
-  ]),
+  ),
   ({ response, state }: Context) => {
     response.status = 200;
     response.body = state.request_body;
   },
 );
 
-router.post('/validate-form-body8', 
-  body([
-    check('name').exists(),
-    check('phone').ifValue([isNumeric(), hasLenght({ min: 10, max: 15 })])
-  ]),
+router.post(
+  '/validate-body8',
+  body(check('user').ifValue(isObject())),
   ({ response, state }: Context) => {
-  response.status = 200;
-  response.body = state.request_body;
-});
+    response.status = 200;
+    response.body = state.request_body;
+  },
+);
+
+router.post(
+  '/validate-body9',
+  body(
+    check('login').maybe().ifValue(contains('NS')),
+    check('code').maybe().ifValue(contains('test', true)),
+  ),
+  ({ response, state }: Context) => {
+    response.status = 200;
+    response.body = state.request_body;
+  },
+);
+
+router.post(
+  '/validate-body10',
+  body(check('phone').ifValue(matches(/^\d{3}-\d{3}-\d{4}$/))),
+  ({ response, state }: Context) => {
+    response.status = 200;
+    response.body = state.request_body;
+  },
+);
+
+router.post(
+  '/validate-body11',
+  body(check('cities').ifValue(isIn(['New York', 'Los Angeles', 'Chicago']))),
+  ({ response, state }: Context) => {
+    response.status = 200;
+    response.body = state.request_body;
+  },
+);
 
 export default router;

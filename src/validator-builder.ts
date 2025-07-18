@@ -10,10 +10,11 @@ export default class ValidatorBuilder {
    * Initialize a new instance of the validator builder
    *
    * @param key the key to validate
+   * @param message the message for the validation error
    * @returns this instance
    */
-  check(key: string): this {
-    this._validator = { key };
+  check(key: string, message?: string): this {
+    this._validator = { key, message };
     return this;
   }
 
@@ -27,33 +28,25 @@ export default class ValidatorBuilder {
     return this;
   }
 
-  sanitizeWith(sanitizers: ValidatorSanitizer[]): this;
-  sanitizeWith(sanitizer: ValidatorSanitizer): this;
-
   /**
    * Set the sanitizers for the validator
    *
    * @param sanitizers the sanitizers to apply
    * @returns this instance
    */
-  sanitizeWith(sanitizers: ValidatorSanitizer[] | ValidatorSanitizer): this {
-    this._validator.sanitizer = Array.isArray(sanitizers) ? sanitizers : [sanitizers];
+  sanitizeWith(...sanitizers: ValidatorSanitizer[]): this {
+    this._validator.sanitizer = sanitizers;
     return this;
   }
-
-  ifValue(validators: ValidatorFunction[], message?: string): ValidatorParams;
-  ifValue(validators: ValidatorFunction, message?: string): ValidatorParams;
 
   /**
    * Build the validator with the provided validators
    *
    * @param validators the validators to run
-   * @param message optional message for the validation error
    * @returns validator parameters
    */
-  ifValue(validators: ValidatorFunction[] | ValidatorFunction, message?: string): ValidatorParams {
-    this._validator.validators = validators instanceof Array ? validators : [validators];
-    this._validator.message = message;
+  ifValue(...validators: ValidatorFunction[]): ValidatorParams {
+    this._validator.validators = validators;
     return this._validator;
   }
 

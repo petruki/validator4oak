@@ -54,3 +54,12 @@ Deno.test({
       .expect(200, { name: 'helloworld' });
   },
 });
+
+Deno.test({
+  name: 'it should sanitize the request body - using replace',
+  async fn() {
+    const request = await superoak(app);
+    await request.post('/sanitize-body3').send({ name: 'Hello World' })
+      .expect(200, { name: 'Hello-World' });
+  },
+});
