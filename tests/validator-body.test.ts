@@ -389,3 +389,55 @@ Deno.test({
     });
   },
 });
+
+Deno.test({
+  name: 'it should PASS when validating a body - value is string',
+  async fn() {
+    const body = { feature: 'feature1' };
+
+    const request = await superoak(app);
+    const response = await request.post('/validate-body12').send(body).expect(200);
+
+    assertEquals(response.body, body);
+  }
+});
+
+Deno.test({
+  name: 'it should FAIL when validating a body - value is not string',
+  async fn() {
+    const request = await superoak(app);
+    const response = await request.post('/validate-body12').send({
+      feature: 12345,
+    }).expect(422);
+
+    assertEquals(response.body, {
+      error: 'Invalid feature input. Cause: it is not a valid string.',
+    });
+  },
+});
+
+Deno.test({
+  name: 'it should PASS when validating a body - allowed characters',
+  async fn() {
+    const body = { feature: 'feature_1' };
+
+    const request = await superoak(app);
+    const response = await request.post('/validate-body13').send(body).expect(200);
+
+    assertEquals(response.body, body);
+  }
+});
+
+Deno.test({
+  name: 'it should FAIL when validating a body - disallowed characters',
+  async fn() {
+    const request = await superoak(app);
+    const response = await request.post('/validate-body13').send({
+      feature: 'feature@1',
+    }).expect(422);
+
+    assertEquals(response.body, {
+      error: 'Invalid feature input. Cause: it contains invalid characters. Allowed characters: a-zA-Z0-9_.',
+    });
+  },
+});
