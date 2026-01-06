@@ -1,6 +1,7 @@
 import type { SizeValidation, ValidatorResponse } from './validator-types.ts';
 
 const successResponse = { result: true, message: 'valid' };
+const urlRegex = new RegExp(/^(http|https|file):/, 'i');
 
 /**
  * ValidatorFn class provides a set of methods to validate input values.
@@ -82,7 +83,7 @@ export class ValidatorFn {
    */
   isUrl(): (value: string, key: string, message?: string) => ValidatorResponse {
     return (value: string, key: string, message?: string): ValidatorResponse => {
-      if (!RegExp(/^(http|https|file):/, 'i').exec(value)) {
+      if (!urlRegex.exec(value)) {
         return ValidatorFn.failed(message || `Invalid ${key} input. Cause: it is not a valid URL.`);
       }
 
@@ -95,7 +96,7 @@ export class ValidatorFn {
    */
   isNumeric(): (value: string, key: string, message?: string) => ValidatorResponse {
     return (value: string, key: string, message?: string): ValidatorResponse => {
-      if (isNaN(Number(value))) {
+      if (Number.isNaN(Number(value))) {
         return ValidatorFn.failed(message || `Invalid ${key} input. Cause: it is not a valid number.`);
       }
 
