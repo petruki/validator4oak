@@ -100,7 +100,7 @@ It's also possible to validate array of complex objects using `isArray()` and `*
 router.post('/checkout/v1/confirm',
   body(
     check('order.items').ifValue(isArray()),
-    check('order.items.*.sku').ifValue(isString(), hasLenght({ min: 6 })),
+    check('order.items.*.sku').ifValue(isString(), hasLength({ min: 6 })),
     check('order.items.*.quantity').ifValue(isNumeric())
   ), (ctx: Context) => {
     // ...
@@ -126,13 +126,13 @@ router.post('/example/v1/shorten',
 
 ```typescript
 const { escape, trim } = ValidatorSn.createSanitizer();
-const { hasLenght } = ValidatorFn.createValidator();
+const { hasLength } = ValidatorFn.createValidator();
 
 router.post('/message/v1/send',
   body(
     check('message')
       .sanitizeWith(escape(), trim())
-      .ifValue(hasLenght({ max: 500 }))
+      .ifValue(hasLength({ max: 500 }))
   ), (ctx: Context) => {
     // ...
   },

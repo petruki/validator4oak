@@ -16,7 +16,7 @@ export class ValidatorFn {
   /**
    * Check content length of a string.
    */
-  hasLenght(sizeValidation: SizeValidation): (value: string, key: string, message?: string) => ValidatorResponse {
+  hasLength(sizeValidation: SizeValidation): (value: string, key: string, message?: string) => ValidatorResponse {
     return (value: string, key: string, message?: string): ValidatorResponse => {
       if (sizeValidation.max && value.length > sizeValidation.max) {
         return ValidatorFn.failed(

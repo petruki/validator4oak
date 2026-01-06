@@ -4,7 +4,7 @@ import { type Context, type Next, Router } from '../deps.ts';
 const router = new Router();
 
 const { body, check } = ValidatorMiddleware.createMiddleware<Context, Next>();
-const { isArray, isIn, isObject, isString, contains, matches, hasLenght, hasAllowedCharacters } = ValidatorFn.createValidator();
+const { isArray, isIn, isObject, isString, contains, matches, hasLength, hasAllowedCharacters } = ValidatorFn.createValidator();
 
 router.post(
   '/validate-body1',
@@ -56,7 +56,7 @@ router.post(
 
 router.post(
   '/validate-body6',
-  body(check('colors.*.name').ifValue(hasLenght({ min: 3 }))),
+  body(check('colors.*.name').ifValue(hasLength({ min: 3 }))),
   ({ response, state }: Context) => {
     response.status = 200;
     response.body = state.request_body;
@@ -66,8 +66,8 @@ router.post(
 router.post(
   '/validate-body7',
   body(
-    check('color.list.*.name').ifValue(hasLenght({ min: 3 })),
-    check('color.list.*.hex').maybe().ifValue(hasLenght({ min: 6 }))
+    check('color.list.*.name').ifValue(hasLength({ min: 3 })),
+    check('color.list.*.hex').maybe().ifValue(hasLength({ min: 6 }))
   ),
   ({ response, state }: Context) => {
     response.status = 200;
