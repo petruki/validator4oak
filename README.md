@@ -65,7 +65,7 @@ router.get('/api/v1/shorten',
 
 ### Validate body and form parameters
 
-Key body parameters can be accessed using complex keys, e.g. `order.number`.<br>
+Key body parameters can be accessed using dot-path notation keys, e.g. `order.number`.<br>
 Since Oak v14, body request can only be consumed once, so you'll need to use state.request_body to access it within the route.
 
 Using body:
