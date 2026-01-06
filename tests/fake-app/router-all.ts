@@ -4,7 +4,7 @@ import { type Context, type Next, Router } from '../deps.ts';
 const router = new Router();
 
 const { header, query, body, check } = ValidatorMiddleware.createMiddleware<Context, Next>();
-const { isNumeric, isBoolean, hasLenght } = ValidatorFn.createValidator();
+const { isNumeric, isBoolean, hasLength } = ValidatorFn.createValidator();
 const { trim } = ValidatorSn.createSanitizer();
 
 router.post('/validate-all',
@@ -14,7 +14,7 @@ router.post('/validate-all',
     check('name').exists(),
     check('phone')
       .sanitizeWith(trim())
-      .ifValue(isNumeric(), hasLenght({ min: 10, max: 15 }))
+      .ifValue(isNumeric(), hasLength({ min: 10, max: 15 }))
   ),
   ({ request, response, state }: Context) => {
   response.status = 200;

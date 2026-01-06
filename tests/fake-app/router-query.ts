@@ -4,7 +4,7 @@ import { type Context, Router } from '../deps.ts';
 const router = new Router();
 
 const { query, check } = ValidatorMiddleware.createMiddleware();
-const { hasLenght, isUrl, isNumeric, isBoolean } = ValidatorFn.createValidator();
+const { hasLength, isUrl, isNumeric, isBoolean } = ValidatorFn.createValidator();
 
 const isUrlDomainDotCom = (value: string) => {
   return {
@@ -24,7 +24,7 @@ router.get(
 
 router.get(
   '/validate-query2',
-  query(check('name').ifValue(hasLenght({ min: 2, max: 5 }))),
+  query(check('name').ifValue(hasLength({ min: 2, max: 5 }))),
   ({ response }: Context) => {
     response.status = 200;
     response.body = {};
